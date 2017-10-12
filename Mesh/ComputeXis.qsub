@@ -1,0 +1,51 @@
+#!/bin/sh
+# 
+# EXAMPLE OPEN MPI SCRIPT FOR SGE
+# Modified by Basement Supercomputing 1/2/2006 DJE
+# Modified by cmrg 19/June/2008 FVL
+
+# Your job name 
+#$ -N ComputeXis_pt68
+
+# Use Verbose
+#$ -V
+
+# Use current working directory
+#$ -cwd
+
+# Join stdout and stderr
+#$ -j y
+
+# Use our GPU queue, which uses GPU and CPU nodes
+# -q gpu@*pu*
+
+# To use CUDA nodes only
+# -l cuda
+
+# Request a set amount of memory
+#$ -l h_vmem=4G
+# -l h_vmem=2G
+
+# Set your number of processors here. 
+# Requests mpich environment although we actually are using openmpi
+# -pe orte 2
+
+# Send job information by email
+#$ -M cvillong@ucsd.edu
+#$ -m e
+
+# Run job through bash shell
+#$ -S /bin/bash
+
+# Export Library path
+#export LD_LIBRARY_PATH=/opt/cuda/lib64:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/opt/openmpi-myrinet_mx/lib:$LD_LIBRARY_PATH
+#export MX_RCACHE=0
+
+module load intel
+
+# Use full pathname to make sure we are using the right mpirun
+# /opt/openmpi/bin/mpirun -mca btl_tcp_if_include eth0 -np $NSLOTS continuityparallel --full -no-threads --batch /home/cvillong/Scripts/FitGeometry(CT-MR).py
+# opt/openmpi/bin/mpirun -mca btl_tcp_if_include eth0 -np $NSLOTS continuityparallel --full -no-threads --batch /home/cvillong/Scripts/ComputeXis.py
+
+/home/cvillong/cont_dev_test/./continuity --unbuffered --full --no-threads --batch $HOME/Scripts/ComputeXis.py

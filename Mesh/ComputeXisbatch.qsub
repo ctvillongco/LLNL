@@ -1,0 +1,70 @@
+#!/bin/sh
+# 
+# EXAMPLE OPEN MPI SCRIPT FOR SGE
+# Modified by Basement Supercomputing 1/2/2006 DJE
+# Modified by cmrg 19/June/2008 FVL
+# Modified by C Villongco 10/April/2012
+
+# Your job name 
+# -N ComputeXis_pt68_subdiv-5
+#$ -N ComputeXis_pt68_subdiv-4
+# -N ComputeXis_swine_lesion-1
+
+
+# Use Verbose
+#$ -V
+
+# Use current working directory
+#$ -cwd
+
+# Join stdout and stderr
+# -j y
+
+# Use our GPU queue, which uses GPU and CPU nodes
+# -q gpu@*pu*
+#$ -q all.q
+
+# To use CUDA nodes only
+# -l cuda
+
+# Set your number of processors here. 
+# Requests mpich environment although we actually are using openmpi
+# -pe orte 4
+
+# Request a set amount of memory
+# for Bueno-Cherry-Fenton, 14k elements (LVmodel-1)
+# -l h_vmem=50G
+#$ -l h_vmem=20G
+
+# Run job through bash shell
+#$ -S /bin/bash
+
+
+# Send job information by email
+#$ -M cvillong@ucsd.edu
+#$ -m e
+
+# Export Library path
+#export LD_LIBRARY_PATH=/opt/cuda/lib64:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/opt/openmpi-myrinet_mx/lib:$LD_LIBRARY_PATH
+#export MX_RCACHE=0
+
+# Directory where scirpt is located
+SCRIPT_DIR=/home/cvillong/Scripts/LLNL/
+
+# submit command for single job
+#/home/cvillong/cont_dev3/./continuity --unbuffered --full --no-threads --batch $HOME/Scripts/runEPbatch.py
+#/home/cvillong/cont_dev_test/./continuity --unbuffered --full --no-threads --batch $HOME/Scripts/runEPbatch-Do.py
+
+# submit commands for batch job
+# replace NUMBER_TO_CHANGE WITH ${SGE_TASK_ID} in original template script and save copy to script_${ SGE_TASK_ID}
+sed -e "s/NUMBER_TO_CHANGE/${SGE_TASK_ID}/g"  $SCRIPT_DIR/ComputeXisbatch.py > $SCRIPT_DIR/ComputeXisbatch_${SGE_TASK_ID}.py
+
+# Use full pathname to make sure we are using the right mpirun
+#/home/cvillong/cont_dev_test/./continuity --unbuffered --full --no-threads --batch $SCRIPT_DIR/ComputeXisbatch_${SGE_TASK_ID}.py
+/home/cvillong/cont_dev/./continuity --unbuffered --full --no-threads --batch $SCRIPT_DIR/ComputeXisbatch_${SGE_TASK_ID}.py
+
+
+# clean up script copies
+#rm $SCRIPT_DIR/runEPbatch_${SGE_TASK_ID}.py
+rm $SCRIPT_DIR/ComputeXisbatch_${SGE_TASK_ID}.py

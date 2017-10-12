@@ -1,0 +1,57 @@
+#!/bin/sh
+# Modified by Basement Supercomputing 1/2/2006 DJE
+# Modified by cmrg 19/June/2008 FVL
+
+# Your job name 
+#$ -N ListdYdMatl_pt68
+
+# Use Verbose
+#$ -V
+
+# Use current working directory
+#$ -cwd
+
+# Join stdout and stderr
+#$ -j y
+
+# Use our GPU queue, which uses GPU and CPU nodes
+# -q gpu@compute-2-0.local
+# -q gpu@dellgpu-2-5*
+#$ -q all.q
+
+# Request a set amount of memory
+#$ -l h_vmem=50G
+
+# Send job information by email
+#$ -M guitarded068@gmail.com
+#$ -m e
+
+# To use CUDA nodes only
+# -l cuda
+
+# Set your number of processors here. 
+# Requests mpich environment although we actually are using openmpi
+# -pe orte 4
+
+# Run job through bash shell
+#$ -S /bin/bash
+
+# Export Library path
+#export LD_LIBRARY_PATH=/opt/cuda/lib64:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/opt/openmpi-myrinet_mx/lib:$LD_LIBRARY_PATH
+#export MX_RCACHE=0
+
+# Directory where scirpt is located
+SCRIPT_DIR=/home/cvillong/Scripts/LLNL/
+
+# submit command for single job
+
+# submit commands for batch job
+# replace NUMBER_TO_CHANGE WITH ${SGE_TASK_ID} in original template script and save copy to script_${ SGE_TASK_ID}
+sed -e "s/NUMBER_TO_CHANGE/${SGE_TASK_ID}/g"  $SCRIPT_DIR/ListdYdMatlbatch.py > $SCRIPT_DIR/ListdYdMatlbatch_${SGE_TASK_ID}.py
+
+# Use full pathname to make sure we are using the right mpirun
+/home/cvillong/cont_dev_test/./continuity --unbuffered --full --no-threads --batch $SCRIPT_DIR/ListdYdMatlbatch_${SGE_TASK_ID}.py
+
+# clean up script copies
+rm $SCRIPT_DIR/ListdYdMatlbatch_${SGE_TASK_ID}.py
